@@ -1,0 +1,11 @@
+{
+  "name": "dymaxion-clock",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A day/night world clock on Buckminster Fuller's Dymaxion map",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "test": "node --test test/*.test.js"
+  }
+}

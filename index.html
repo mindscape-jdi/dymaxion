@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Dymaxion Clock</title>
+  <meta name="description" content="A live day/night world clock drawn on Buckminster Fuller's Dymaxion map.">
+  <meta name="theme-color" content="#0b1220">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <h1>Dymaxion Clock</h1>
+      <p class="sub">Daylight across Fuller's unfolded Earth</p>
+    </div>
+    <div class="clock" aria-live="off">
+      <div class="time" id="localTime">--:--:--</div>
+      <div class="meta"><span id="localDate">—</span> · <span id="tzName">—</span></div>
+      <div class="meta mono">UTC <span id="utcTime">--:--</span> · <span id="modeBadge" class="badge live">LIVE</span></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="map-scroll" id="mapScroll">
+      <div class="map-wrap" id="mapWrap">
+        <svg id="map" role="img" aria-label="Dymaxion map of the Earth showing where it is currently day and night"></svg>
+        <div class="tooltip" id="tooltip" hidden></div>
+      </div>
+    </section>
+    <p class="swipe-hint">Swipe the map sideways, or turn your phone for the full view. Tap anywhere for local sun details.</p>
+
+    <section class="controls" aria-label="Time controls">
+      <div class="seg" role="group" aria-label="Playback speed">
+        <button data-speed="1" class="on">Live</button>
+        <button data-speed="600">10 min/s</button>
+        <button data-speed="3600">1 h/s</button>
+        <button data-speed="86400">1 day/s</button>
+        <button data-speed="2592000">30 days/s</button>
+      </div>
+      <label class="jump">
+        <span>Go to</span>
+        <input type="datetime-local" id="jump" step="60">
+      </label>
+      <div class="toggles">
+        <label><input type="checkbox" id="showCities" checked> Cities</label>
+        <label><input type="checkbox" id="showNoon" checked> Noon line</label>
+        <label><input type="checkbox" id="showGrid" checked> Grid</label>
+        <button id="locate" type="button">📍 My location</button>
+      </div>
+    </section>
+
+    <section class="facts" id="facts" aria-label="Sun facts"></section>
+
+    <section class="cities" aria-label="World clock">
+      <h2>World clock</h2>
+      <ul id="cityList"></ul>
+    </section>
+
+    <section class="legend" aria-label="Legend">
+      <span><i class="sw day"></i>Day</span>
+      <span><i class="sw civil"></i>Civil twilight</span>
+      <span><i class="sw naut"></i>Nautical</span>
+      <span><i class="sw astro"></i>Astronomical</span>
+      <span><i class="sw night"></i>Night</span>
+      <span><i class="sw sun"></i>Sun overhead</span>
+      <span><i class="sw noon"></i>Where it is solar noon at each UTC hour</span>
+    </section>
+  </main>
+
+  <footer>
+    Projection: R. Buckminster Fuller's Dymaxion (Airocean) map, Gray–Fuller formulas via
+    <a href="https://github.com/d3/d3-geo-polygon">d3-geo-polygon</a>.
+    Land: <a href="https://www.naturalearthdata.com/">Natural Earth</a>.
+    Sun position computed from the Astronomical Almanac formulas (≈0.01°).
+  </footer>
+
+  <script src="vendor/d3-array.min.js"></script>
+  <script src="vendor/d3-geo.min.js"></script>
+  <script src="vendor/d3-geo-projection.min.js"></script>
+  <script src="vendor/d3-geo-polygon.min.js"></script>
+  <script src="vendor/topojson-client.min.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
