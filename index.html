@@ -25,13 +25,19 @@
   </header>
 
   <main>
-    <section class="map-scroll" id="mapScroll">
-      <div class="map-wrap" id="mapWrap">
-        <svg id="map" role="img" aria-label="Dymaxion map of the Earth showing where it is currently day and night"></svg>
-        <div class="tooltip" id="tooltip" hidden></div>
+    <section class="map-wrap" id="mapWrap">
+      <svg id="map" role="img" aria-label="Dymaxion map of the Earth showing where it is currently day and night"></svg>
+      <canvas id="globe" aria-label="The Dymaxion map folded into a globe, lit by the sun"></canvas>
+      <div class="map-tools">
+        <button id="zoomIn" type="button" aria-label="Zoom in">+</button>
+        <button id="zoomOut" type="button" aria-label="Zoom out">−</button>
+        <button id="zoomReset" type="button" aria-label="Reset view">⟲</button>
       </div>
+      <button id="globeBtn" class="globe-btn" type="button">🌐 Fold into globe</button>
+      <div class="loading" id="loading" aria-live="polite"></div>
+      <div class="tooltip" id="tooltip" hidden></div>
     </section>
-    <p class="swipe-hint">Swipe the map sideways, or turn your phone for the full view. Tap anywhere for local sun details.</p>
+    <p class="hint">Scroll or pinch to zoom, drag to pan. Tap the map for local sun details.</p>
 
     <section class="controls" aria-label="Time controls">
       <div class="seg" role="group" aria-label="Playback speed">
@@ -45,12 +51,16 @@
         <span>Go to</span>
         <input type="datetime-local" id="jump" step="60">
       </label>
-      <div class="toggles">
-        <label><input type="checkbox" id="showCities" checked> Cities</label>
-        <label><input type="checkbox" id="showNoon" checked> Noon line</label>
-        <label><input type="checkbox" id="showGrid" checked> Grid</label>
-        <button id="locate" type="button">📍 My location</button>
-      </div>
+    </section>
+    <section class="controls toggles" aria-label="Layers">
+      <label><input type="checkbox" id="showShip" checked> <i class="sw ship"></i>Shipping</label>
+      <label><input type="checkbox" id="showFlights" checked> <i class="sw flight"></i>Flights</label>
+      <label><input type="checkbox" id="showRail" checked> <i class="sw rail"></i>Rail</label>
+      <label><input type="checkbox" id="showCities" checked> Cities</label>
+      <label><input type="checkbox" id="showNoon" checked> Noon line</label>
+      <label><input type="checkbox" id="showGrid" checked> Grid</label>
+      <label id="spinLabel" hidden><input type="checkbox" id="spin" checked> Orbit</label>
+      <button id="locate" type="button">📍 My location</button>
     </section>
 
     <section class="facts" id="facts" aria-label="Sun facts"></section>
@@ -68,18 +78,24 @@
       <span><i class="sw night"></i>Night</span>
       <span><i class="sw sun"></i>Sun overhead</span>
       <span><i class="sw noon"></i>Where it is solar noon at each UTC hour</span>
+      <span><i class="sw ship"></i>Container shipping lanes (thicker = busier)</span>
+      <span><i class="sw port"></i>Major container port</span>
+      <span><i class="sw flight"></i>Busiest direct flight routes</span>
+      <span><i class="sw rail"></i>Railways</span>
     </section>
   </main>
 
   <footer>
     Projection: R. Buckminster Fuller's Dymaxion (Airocean) map, Gray–Fuller formulas via
     <a href="https://github.com/d3/d3-geo-polygon">d3-geo-polygon</a>.
-    Land: <a href="https://www.naturalearthdata.com/">Natural Earth</a>.
+    Land and railways: <a href="https://www.naturalearthdata.com/">Natural Earth</a>.
+    Shipping lanes: traced with <a href="https://github.com/genthalili/searoute-py">searoute</a> over Eurostat's maritime network between major container ports (indicative, not live).
+    Flights: 2,500 busiest direct routes from the <a href="https://openflights.org/data.html">OpenFlights</a> database (2014, ODbL).
+    3D: <a href="https://threejs.org/">three.js</a>.
     Sun position computed from the Astronomical Almanac formulas (≈0.01°).
   </footer>
 
-  <script src="vendor/d3-array.min.js"></script>
-  <script src="vendor/d3-geo.min.js"></script>
+  <script src="vendor/d3.min.js"></script>
   <script src="vendor/d3-geo-projection.min.js"></script>
   <script src="vendor/d3-geo-polygon.min.js"></script>
   <script src="vendor/topojson-client.min.js"></script>

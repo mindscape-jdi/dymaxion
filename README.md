@@ -9,6 +9,12 @@ A live world clock drawn on R. Buckminster Fuller's **Dymaxion (Airocean) map**,
 - **Accurate sun position.** The point where the sun is directly overhead is computed every frame from the Astronomical Almanac's solar formulas (declination, equation of time, sidereal time), accurate to about 0.01°.
 - **Day, twilight and night bands.** Shading follows real sun altitudes: sunrise/sunset at −0.833° (includes refraction and the sun's radius), then civil (−6°), nautical (−12°) and astronomical (−18°) twilight.
 - **True Dymaxion layout.** Fuller's icosahedral net using the Gray–Fuller formulas from [d3-geo-polygon](https://github.com/d3/d3-geo-polygon) (`geoAirocean`). Shading is clipped correctly across the cut edges between faces.
+- **Zoom and pan.** Scroll, pinch or use the + / − buttons, up to 24×. Lines stay crisp and markers keep their size.
+- **Transport layers** (toggle each on or off):
+  - **Container shipping lanes** between ~40 of the world's biggest container ports, traced over Eurostat's maritime network with [searoute](https://github.com/genthalili/searoute-py). Thicker lines carry more of the main trade lanes. Indicative, not live vessel tracking.
+  - **Flights:** the 2,500 busiest direct airport pairs from the [OpenFlights](https://openflights.org/data.html) route database (2014, ODbL), drawn as great circles. Brighter = more airlines on the route.
+  - **Railways** from Natural Earth 1:10m (public domain).
+- **Fold into a globe.** One tap folds the Dymaxion net along its real hinges into an icosahedron, inflates it into a sphere and floats it in space (three.js). The globe is lit by the sun from its true direction, with Earth's 23.44° axial tilt shown relative to the sun, so seasons, polar day/night and the terminator are physically correct. Drag to turn it, pinch or scroll to zoom, and it slowly orbits on its own (toggle "Orbit"). The time controls spin it too.
 - **Solar noon line.** The sun's path for ±12 hours, marked with the UTC hour at which it's noon at each spot.
 - **World clock.** 20 cities with local civil time (correct time zones and DST) and their current day/night state.
 - **Inspect anywhere.** Hover or tap the map for latitude/longitude, local solar time and sun altitude.
@@ -37,7 +43,7 @@ Live at https://mindscape-jdi.github.io/dymaxion/. GitHub Pages publishes straig
 npm test
 ```
 
-Checks the solar maths against almanac values for solstices, equinoxes and the equation of time.
+Checks the solar maths against almanac values for solstices, equinoxes and the equation of time, the globe's orientation (subsolar point faces the sun, North Pole tilts toward it in June), and that the folded net closes exactly into an icosahedron.
 
 ## Files
 
@@ -45,7 +51,22 @@ Checks the solar maths against almanac values for solstices, equinoxes and the e
 | --- | --- |
 | `index.html`, `styles.css` | Page and styling |
 | `app.js` | Map rendering, time controls, world clock |
-| `sun.js` | Solar position and altitude maths |
+| `sun.js` | Solar position and altitude maths, and the Earth-to-scene rotation for the globe |
+| `fold.js` | Geometry that folds the Dymaxion net into an icosahedron and sphere |
+| `globe.js` | 3D globe view (loaded only when you open it) |
+| `fastfaces.js` | Faster face lookup for the Dymaxion projection |
+| `tools/` | Scripts that rebuild `data/` from the original sources |
 | `sw.js`, `manifest.webmanifest`, `icon.svg` | Offline support and install |
-| `vendor/` | d3-array 3.2.4, d3-geo 3.1.1, d3-geo-projection 4.0.0, d3-geo-polygon 2.0.1, topojson-client 3.1.0 (ISC licensed) |
+| `vendor/` | d3 7.9.0, d3-geo-projection 4.0.0, d3-geo-polygon 2.0.1, topojson-client 3.1.0 (ISC), three.js 0.170.0 (MIT) |
 | `data/land-50m.json` | Natural Earth 1:50m land, from world-atlas 2.0.2 (public domain) |
+| `data/rail.json` | Natural Earth 1:10m railroads, simplified (public domain) |
+| `data/shipping.json` | Container shipping lanes and ports (built with searoute, Apache-2.0; Eurostat MARNET network) |
+| `data/flights.json` | Busiest direct routes from OpenFlights (Open Database License) |
+
+### Rebuilding the data
+
+```sh
+pip install searoute
+python tools/build_data.py path/to/openflights   # needs airports.dat and routes.dat
+tools/build_rail.sh path/to/ne_10m_railroads.geojson   # needs npx mapshaper
+```

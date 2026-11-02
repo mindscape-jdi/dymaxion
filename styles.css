@@ -11,10 +11,14 @@
   --land-edge: #7d6f4a;
   --grid: rgba(255, 255, 255, 0.16);
   --shade: #050a18;
+  --ship: #3ee6cf;
+  --flight: #ff8fd8;
+  --rail: #9e2f2a;
   color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 
 html, body {
   margin: 0;
@@ -53,16 +57,24 @@ h1 { margin: 0; font-size: 1.35rem; letter-spacing: 0.02em; }
 
 main { padding: 0 12px 12px; max-width: 1500px; margin: 0 auto; }
 
-.map-scroll { overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; }
-.swipe-hint { display: none; margin: 4px 0 0; color: var(--muted); font-size: 0.75rem; text-align: center; }
+.hint { margin: 6px 0 0; color: var(--muted); font-size: 0.75rem; text-align: center; }
 .map-wrap {
   position: relative;
   width: 100%;
-  aspect-ratio: 2.1 / 1;
-  min-height: 180px;
+  aspect-ratio: var(--map-aspect, 2.1 / 1);
+  min-height: 170px;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: aspect-ratio 0.5s;
 }
-#map { width: 100%; height: 100%; display: block; touch-action: manipulation; }
+#map { width: 100%; height: 100%; display: block; cursor: crosshair; }
+.map-wrap.zoomed #map { cursor: grab; }
+#globe { position: absolute; inset: 0; width: 100%; height: 100%; display: none; touch-action: none; cursor: grab; }
+.map-wrap.globe-on #globe { display: block; }
+.map-wrap.globe-on #map { visibility: hidden; }
 
+/* Strokes keep their on-screen width while zooming. */
+#map path { vector-effect: non-scaling-stroke; }
 .ocean { fill: var(--ocean); }
 .outline { fill: none; stroke: var(--ocean-edge); stroke-width: 1.2; }
 .graticule { fill: none; stroke: var(--grid); stroke-width: 0.5; }
@@ -71,6 +83,14 @@ main { padding: 0 12px 12px; max-width: 1500px; margin: 0 auto; }
 .shade { fill: var(--shade); stroke: none; }
 .terminator { fill: none; stroke: rgba(255, 210, 120, 0.55); stroke-width: 1; }
 .noon-line { fill: none; stroke: var(--accent); stroke-width: 1; stroke-dasharray: 2 3; opacity: 0.8; }
+.rail { fill: none; stroke: var(--rail); stroke-width: 0.8; opacity: 0.85; stroke-linejoin: round; }
+.ship { fill: none; stroke: var(--ship); stroke-linecap: round; stroke-linejoin: round; opacity: 0.9; }
+.ship-1 { stroke-width: 0.8; }
+.ship-2 { stroke-width: 1.4; }
+.ship-3 { stroke-width: 2.2; }
+.flight { fill: none; stroke: var(--flight); stroke-width: 0.4; opacity: 0.16; }
+.flight.busy { stroke-width: 0.6; opacity: 0.38; }
+.ports circle { fill: #e9fffb; stroke: #0d5f57; stroke-width: 0.8; }
 .noon-dot { fill: var(--accent); }
 .noon-label { fill: #fff3d6; font-size: 9px; font-weight: 600; paint-order: stroke; stroke: rgba(0,0,0,0.6); stroke-width: 2.5px; }
 .city circle { stroke: #000; stroke-width: 0.8; }
@@ -96,6 +116,22 @@ main { padding: 0 12px 12px; max-width: 1500px; margin: 0 auto; }
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
 }
 .tooltip b { color: var(--accent); }
+
+.map-tools { position: absolute; top: 8px; right: 8px; display: flex; flex-direction: column; gap: 4px; }
+.map-tools button, .globe-btn {
+  background: rgba(10, 16, 30, 0.82);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: inherit;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+.map-tools button { width: 34px; height: 34px; font-size: 1.1rem; line-height: 1; padding: 0; }
+.globe-btn { position: absolute; left: 8px; bottom: 8px; padding: 7px 12px; font-size: 0.85rem; font-weight: 600; }
+.globe-btn:disabled { opacity: 0.75; cursor: progress; }
+.loading { position: absolute; left: 50%; top: 8px; transform: translateX(-50%); font-size: 0.75rem; color: var(--muted); pointer-events: none; }
+.loading:empty { display: none; }
 
 .controls {
   display: flex;
@@ -169,6 +205,10 @@ main { padding: 0 12px 12px; max-width: 1500px; margin: 0 auto; }
 .sw.astro { background: color-mix(in srgb, var(--ocean), var(--shade) 64%); }
 .sw.night { background: color-mix(in srgb, var(--ocean), var(--shade) 75%); }
 .sw.sun { background: radial-gradient(circle, #fff6c8 20%, #ffb300 60%, transparent 70%); border: 0; }
+.sw.ship { background: var(--ship); border: 0; height: 3px; width: 18px; border-radius: 2px; }
+.sw.flight { background: var(--flight); border: 0; height: 2px; width: 18px; opacity: 0.8; }
+.sw.rail { background: var(--rail); border: 0; height: 2px; width: 18px; }
+.sw.port { background: #e9fffb; border: 1px solid #0d5f57; border-radius: 50%; width: 8px; height: 8px; }
 .sw.noon { background: none; border: 0; border-top: 2px dotted var(--accent); height: 0; width: 18px; }
 
 footer {
@@ -183,6 +223,6 @@ footer {
   .clock { text-align: left; }
   .clock .time { font-size: 2rem; }
   main { padding: 0 8px 8px; }
-  .map-wrap { width: 760px; }
-  .swipe-hint { display: block; }
+  .map-wrap.globe-on { aspect-ratio: 1 / 1; }
+  .map-tools button { width: 38px; height: 38px; }
 }
