@@ -29,7 +29,7 @@ It also works on any static host.
 
 ### GitHub Pages
 
-`.github/workflows/pages.yml` runs the tests and then publishes the site on every push to `main`. One-time setup: in the repo's **Settings → Pages**, set **Source** to **GitHub Actions**. The site is then at `https://<owner>.github.io/<repo>/`.
+Live at https://mindscape-jdi.github.io/dymaxion/. GitHub Pages publishes straight from the root of `main` (**Settings → Pages → Deploy from a branch**), so every merge to `main` goes live. `.github/workflows/test.yml` runs the tests on every push and PR.
 
 ## Test
 
