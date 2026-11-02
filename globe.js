@@ -10,6 +10,7 @@
 import * as THREE from "./vendor/three.module.min.js";
 import { buildNet } from "./fold.js";
 import { subsolarPoint, earthToScene, lonLatToVec, HORIZON } from "./sun.js";
+import { createSky } from "./skyview.js";
 
 const SUN_AZIMUTH = -25; // sun 65° to the right of the starting camera, so the terminator shows
 const FOLD_MS = 2600;
@@ -83,7 +84,7 @@ const atmosphereFragment = /* glsl */ `
   }
 `;
 
-export function createGlobe({ canvas, d3, getTime, drawTexture }) {
+export function createGlobe({ canvas, d3, getTime, drawTexture, labelLayer }) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.setClearColor(0x02040a);
@@ -143,10 +144,7 @@ export function createGlobe({ canvas, d3, getTime, drawTexture }) {
   );
   scene.add(atmosphere);
 
-  scene.add(makeStars());
-  const sun = makeSun();
-  sun.position.copy(sunScene).multiplyScalar(60);
-  scene.add(sun);
+  const sky = createSky({ scene, sunDir: sunScene, labelLayer, pixelRatio: renderer.getPixelRatio() });
 
   // ---- state ----
   const state = { fold: 0, morph: 0, yaw: 0, pitch: 0, zoom: 1, autoRotate: true, dragging: false };
@@ -205,7 +203,9 @@ export function createGlobe({ canvas, d3, getTime, drawTexture }) {
     camera.position.set(dist * Math.sin(state.yaw) * cp, dist * Math.sin(state.pitch), dist * Math.cos(state.yaw) * cp);
     camera.lookAt(0, 0, 0);
 
+    sky.update(date, camera, SUN_AZIMUTH, ease(state.morph));
     renderer.render(scene, camera);
+    sky.updateLabels(camera, canvas.clientWidth, canvas.clientHeight);
     requestAnimationFrame(frame);
   }
 
@@ -272,6 +272,13 @@ export function createGlobe({ canvas, d3, getTime, drawTexture }) {
     },
     stop() {
       running = false;
+      sky.hideLabels();
+    },
+    loadSky(data) {
+      sky.load(data);
+    },
+    setSky(options) {
+      sky.set(options);
     },
     resize,
     redrawTexture() {
@@ -296,6 +303,10 @@ export function createGlobe({ canvas, d3, getTime, drawTexture }) {
     zoomBy(k) {
       setZoom(state.zoom * k);
     },
+    setView(yaw, pitch) {
+      state.yaw = yaw;
+      state.pitch = pitch;
+    },
     resetView() {
       state.zoom = 1;
       state.pitch = 0;
@@ -307,41 +318,4 @@ export function createGlobe({ canvas, d3, getTime, drawTexture }) {
       return state.morph === 1;
     },
   };
-}
-
-function makeStars() {
-  const n = 2500;
-  const pos = new Float32Array(n * 3);
-  const col = new Float32Array(n * 3);
-  let seed = 7;
-  const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-  for (let i = 0; i < n; i++) {
-    const z = rand() * 2 - 1, a = rand() * Math.PI * 2, r = Math.sqrt(1 - z * z);
-    pos.set([r * Math.cos(a) * 200, z * 200, r * Math.sin(a) * 200], i * 3);
-    const b = 0.35 + 0.65 * Math.pow(rand(), 3);
-    const warm = rand();
-    col.set([b, b * (0.9 + 0.1 * warm), b * (0.85 + 0.15 * (1 - warm))], i * 3);
-  }
-  const g = new THREE.BufferGeometry();
-  g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-  g.setAttribute("color", new THREE.BufferAttribute(col, 3));
-  return new THREE.Points(g, new THREE.PointsMaterial({ size: 1.6, sizeAttenuation: false, vertexColors: true }));
-}
-
-function makeSun() {
-  const c = document.createElement("canvas");
-  c.width = c.height = 256;
-  const ctx = c.getContext("2d");
-  const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
-  g.addColorStop(0, "rgba(255,255,245,1)");
-  g.addColorStop(0.12, "rgba(255,240,190,1)");
-  g.addColorStop(0.3, "rgba(255,200,90,0.45)");
-  g.addColorStop(1, "rgba(255,170,40,0)");
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, 256, 256);
-  const sprite = new THREE.Sprite(
-    new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), blending: THREE.AdditiveBlending, depthWrite: false })
-  );
-  sprite.scale.set(14, 14, 1);
-  return sprite;
 }
