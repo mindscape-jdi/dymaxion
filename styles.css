@@ -130,6 +130,16 @@ main { padding: 0 12px 12px; max-width: 1500px; margin: 0 auto; }
 .map-tools button { width: 34px; height: 34px; font-size: 1.1rem; line-height: 1; padding: 0; }
 .globe-btn { position: absolute; left: 8px; bottom: 8px; padding: 7px 12px; font-size: 0.85rem; font-weight: 600; }
 .globe-btn:disabled { opacity: 0.75; cursor: progress; }
+.sky-labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; display: none; }
+.map-wrap.globe-on .sky-labels { display: block; }
+.sky-label {
+  position: absolute; left: 0; top: 0; white-space: nowrap;
+  font-size: 10px; letter-spacing: 0.04em; color: rgba(150, 180, 255, 0.55);
+  margin: 4px 0 0 6px; text-shadow: 0 0 3px #000;
+}
+.sky-label.major { color: rgba(170, 195, 255, 0.8); text-transform: uppercase; font-size: 9.5px; }
+.sky-label.planet { color: #ffe7b0; font-size: 11px; font-weight: 600; margin: -6px 0 0 9px; }
+.sky-label.moon { color: #e8e8e8; }
 .loading { position: absolute; left: 50%; top: 8px; transform: translateX(-50%); font-size: 0.75rem; color: var(--muted); pointer-events: none; }
 .loading:empty { display: none; }
 
@@ -209,6 +219,7 @@ main { padding: 0 12px 12px; max-width: 1500px; margin: 0 auto; }
 .sw.flight { background: var(--flight); border: 0; height: 2px; width: 18px; opacity: 0.8; }
 .sw.rail { background: var(--rail); border: 0; height: 2px; width: 18px; }
 .sw.port { background: #e9fffb; border: 1px solid #0d5f57; border-radius: 50%; width: 8px; height: 8px; }
+.sw.con { background: none; border: 0; border-top: 1px solid #7ea6ff; width: 18px; height: 0; }
 .sw.noon { background: none; border: 0; border-top: 2px dotted var(--accent); height: 0; width: 18px; }
 
 footer {

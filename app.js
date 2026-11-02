@@ -65,6 +65,9 @@ const els = {
   showFlights: $("showFlights"),
   showRail: $("showRail"),
   spin: $("spin"),
+  showCons: $("showCons"),
+  showPlanets: $("showPlanets"),
+  skyLabels: $("skyLabels"),
   spinLabel: $("spinLabel"),
   locate: $("locate"),
   globeBtn: $("globeBtn"),
@@ -507,8 +510,11 @@ async function toggleGlobe() {
       if (!globe) {
         els.globeBtn.textContent = "Loading 3D…";
         const { createGlobe } = await import("./globe.js");
-        globe = createGlobe({ canvas: els.globe, d3, getTime: simNow, drawTexture });
+        globe = createGlobe({ canvas: els.globe, d3, getTime: simNow, drawTexture, labelLayer: els.skyLabels });
         globe.setAutoRotate(els.spin.checked);
+        applySky();
+        window.dymaxionGlobe = globe; // handy for debugging in the console
+        getJSON("sky.json").then((sky) => globe.loadSky(sky)).catch((err) => console.error("Could not load sky", err));
       }
       globe.redrawTexture();
       zoomReset();
@@ -534,7 +540,7 @@ async function toggleGlobe() {
     console.error(err);
     els.globeBtn.textContent = "3D not available";
   } finally {
-    els.spinLabel.hidden = !globeActive;
+    document.querySelectorAll(".globe-only").forEach((el) => (el.hidden = !globeActive));
     els.globeBtn.disabled = false;
     globeBusy = false;
   }
@@ -563,6 +569,11 @@ els.jump.addEventListener("change", () => {
   c.addEventListener("change", applyToggles)
 );
 els.spin.addEventListener("change", () => globe && globe.setAutoRotate(els.spin.checked));
+function applySky() {
+  if (globe) globe.setSky({ constellations: els.showCons.checked, planets: els.showPlanets.checked });
+}
+els.showCons.addEventListener("change", applySky);
+els.showPlanets.addEventListener("change", applySky);
 els.globeBtn.addEventListener("click", toggleGlobe);
 els.zoomIn.addEventListener("click", () => zoomBy(1.6));
 els.zoomOut.addEventListener("click", () => zoomBy(1 / 1.6));

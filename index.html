@@ -28,6 +28,7 @@
     <section class="map-wrap" id="mapWrap">
       <svg id="map" role="img" aria-label="Dymaxion map of the Earth showing where it is currently day and night"></svg>
       <canvas id="globe" aria-label="The Dymaxion map folded into a globe, lit by the sun"></canvas>
+      <div class="sky-labels" id="skyLabels" aria-hidden="true"></div>
       <div class="map-tools">
         <button id="zoomIn" type="button" aria-label="Zoom in">+</button>
         <button id="zoomOut" type="button" aria-label="Zoom out">−</button>
@@ -59,7 +60,9 @@
       <label><input type="checkbox" id="showCities" checked> Cities</label>
       <label><input type="checkbox" id="showNoon" checked> Noon line</label>
       <label><input type="checkbox" id="showGrid" checked> Grid</label>
-      <label id="spinLabel" hidden><input type="checkbox" id="spin" checked> Orbit</label>
+      <label class="globe-only" hidden><input type="checkbox" id="showCons" checked> Constellations</label>
+      <label class="globe-only" hidden><input type="checkbox" id="showPlanets" checked> Moon &amp; planets</label>
+      <label class="globe-only" id="spinLabel" hidden><input type="checkbox" id="spin" checked> Orbit</label>
       <button id="locate" type="button">📍 My location</button>
     </section>
 
@@ -82,6 +85,7 @@
       <span><i class="sw port"></i>Major container port</span>
       <span><i class="sw flight"></i>Busiest direct flight routes</span>
       <span><i class="sw rail"></i>Railways</span>
+      <span class="globe-legend"><i class="sw con"></i>Constellations, stars and the Moon and planets (globe view)</span>
     </section>
   </main>
 
@@ -92,6 +96,8 @@
     Shipping lanes: traced with <a href="https://github.com/genthalili/searoute-py">searoute</a> over Eurostat's maritime network between major container ports (indicative, not live).
     Flights: 2,500 busiest direct routes from the <a href="https://openflights.org/data.html">OpenFlights</a> database (2014, ODbL).
     3D: <a href="https://threejs.org/">three.js</a>.
+    Stars and constellation figures: <a href="https://github.com/ofrohn/d3-celestial">d3-celestial</a> (BSD).
+    Planets from JPL's approximate orbital elements; Moon from the Astronomical Almanac series (both within ~0.2°).
     Sun position computed from the Astronomical Almanac formulas (≈0.01°).
   </footer>
 
