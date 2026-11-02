@@ -25,7 +25,11 @@ npm start          # python3 -m http.server 8000
 # open http://localhost:8000
 ```
 
-It also works as-is on GitHub Pages or any static host.
+It also works on any static host.
+
+### GitHub Pages
+
+`.github/workflows/pages.yml` runs the tests and then publishes the site on every push to `main`. One-time setup: in the repo's **Settings → Pages**, set **Source** to **GitHub Actions**. The site is then at `https://<owner>.github.io/<repo>/`.
 
 ## Test
 
