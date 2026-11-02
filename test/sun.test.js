@@ -44,3 +44,31 @@ test("altitude and phase", () => {
   assert.equal(phaseOf(-15), "astronomical twilight");
   assert.equal(phaseOf(-40), "night");
 });
+
+import { earthToScene, lonLatToVec } from "../sun.js";
+
+test("globe orientation puts the subsolar point toward the sun", () => {
+  for (const iso of ["2024-06-20T20:51:00Z", "2024-12-21T09:20:00Z", "2026-11-02T07:00:00Z"]) {
+    const d = new Date(iso);
+    const s = subsolarPoint(d);
+    for (const az of [0, 40]) {
+      const m = earthToScene(d, az);
+      const v = lonLatToVec(s.lon, s.lat);
+      const out = m.map((r) => r[0] * v[0] + r[1] * v[1] + r[2] * v[2]);
+      const want = [Math.cos((az * Math.PI) / 180), 0, -Math.sin((az * Math.PI) / 180)];
+      out.forEach((x, i) => near(x, want[i], 1e-9, `${iso} az ${az} [${i}]`));
+    }
+  }
+});
+
+test("globe orientation tilts the North Pole toward the sun in June", () => {
+  const north = (iso) => {
+    const m = earthToScene(new Date(iso));
+    return [m[0][2], m[1][2], m[2][2]]; // image of (0, 0, 1)
+  };
+  const june = north("2024-06-20T20:51:00Z");
+  const dec = north("2024-12-21T09:20:00Z");
+  near(Math.acos(june[1]) * 180 / Math.PI, 23.44, 0.01, "tilt from ecliptic pole");
+  assert.ok(june[0] > 0.39, "June: pole leans toward the sun (+x)");
+  assert.ok(dec[0] < -0.39, "December: pole leans away from the sun");
+});

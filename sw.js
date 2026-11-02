@@ -1,10 +1,11 @@
 // Offline cache so the clock keeps working without a network.
-const CACHE = "dymaxion-clock-v1";
+const CACHE = "dymaxion-clock-v2";
 const FILES = [
-  "./", "index.html", "styles.css", "app.js", "sun.js", "icon.svg", "manifest.webmanifest",
-  "data/land-50m.json",
-  "vendor/d3-array.min.js", "vendor/d3-geo.min.js", "vendor/d3-geo-projection.min.js",
-  "vendor/d3-geo-polygon.min.js", "vendor/topojson-client.min.js",
+  "./", "index.html", "styles.css", "app.js", "sun.js", "fastfaces.js", "fold.js", "globe.js",
+  "icon.svg", "manifest.webmanifest",
+  "data/land-50m.json", "data/shipping.json", "data/flights.json", "data/rail.json",
+  "vendor/d3.min.js", "vendor/d3-geo-projection.min.js", "vendor/d3-geo-polygon.min.js",
+  "vendor/topojson-client.min.js", "vendor/three.module.min.js",
 ];
 
 self.addEventListener("install", (e) => {
