@@ -29,6 +29,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     permissions:
+      contents: read # needed to check out a private repo
       pages: write
       id-token: write
     environment:
