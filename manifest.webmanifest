@@ -1,7 +1,7 @@
 {
-  "name": "Dymaxion Clock",
-  "short_name": "Dymaxion",
-  "description": "A live day/night world clock on Buckminster Fuller's Dymaxion map.",
+  "name": "Fuller Projection Clock",
+  "short_name": "Fuller Clock",
+  "description": "A live day/night world clock on Buckminster Fuller's icosahedral world map projection.",
   "start_url": "./",
   "display": "standalone",
   "orientation": "any",

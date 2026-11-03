@@ -68,6 +68,7 @@ const els = {
   showCons: $("showCons"),
   showPlanets: $("showPlanets"),
   skyLabels: $("skyLabels"),
+  skyFrom: $("skyFrom"),
   spinLabel: $("spinLabel"),
   locate: $("locate"),
   globeBtn: $("globeBtn"),
@@ -513,7 +514,7 @@ async function toggleGlobe() {
         globe = createGlobe({ canvas: els.globe, d3, getTime: simNow, drawTexture, labelLayer: els.skyLabels });
         globe.setAutoRotate(els.spin.checked);
         applySky();
-        window.dymaxionGlobe = globe; // handy for debugging in the console
+        window.fullerGlobe = globe; // handy for debugging in the console
         getJSON("sky.json").then((sky) => globe.loadSky(sky)).catch((err) => console.error("Could not load sky", err));
       }
       globe.redrawTexture();
@@ -529,6 +530,7 @@ async function toggleGlobe() {
       els.globeBtn.textContent = "🗺️ Unfold to map";
     } else {
       els.globeBtn.textContent = "Unfolding…";
+      els.skyFrom.value = "space";
       await globe.unfold();
       globeActive = false;
       els.wrap.classList.remove("globe-on");
@@ -579,26 +581,58 @@ els.zoomIn.addEventListener("click", () => zoomBy(1.6));
 els.zoomOut.addEventListener("click", () => zoomBy(1 / 1.6));
 els.zoomReset.addEventListener("click", zoomReset);
 
-els.locate.addEventListener("click", () => {
+// Ask the browser for the user's position (once); resolves to `me` or null.
+function locateMe() {
+  if (me) return Promise.resolve(me);
   if (!navigator.geolocation) {
     els.locate.textContent = "Location unavailable";
-    return;
+    return Promise.resolve(null);
   }
   els.locate.textContent = "Locating…";
-  navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      me = { lon: pos.coords.longitude, lat: pos.coords.latitude };
-      me.p = projection([me.lon, me.lat]);
-      layers.me.textContent = "";
-      el("circle", { r: 4.5 }, layers.me);
-      el("text", { dx: 7, dy: 4 }, layers.me).textContent = "You";
-      els.locate.textContent = "📍 Located";
-      lastSecond = -1;
-      drawDynamic(true);
-    },
-    () => (els.locate.textContent = "📍 Location denied"),
-    { maximumAge: 600000, timeout: 15000 }
-  );
+  return new Promise((resolve) => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        me = { lon: pos.coords.longitude, lat: pos.coords.latitude };
+        me.p = projection([me.lon, me.lat]);
+        layers.me.textContent = "";
+        el("circle", { r: 4.5 }, layers.me);
+        el("text", { dx: 7, dy: 4 }, layers.me).textContent = "You";
+        els.locate.textContent = "📍 Located";
+        lastSecond = -1;
+        drawDynamic(true);
+        resolve(me);
+      },
+      () => {
+        els.locate.textContent = "📍 Location denied";
+        resolve(null);
+      },
+      { maximumAge: 600000, timeout: 15000 }
+    );
+  });
+}
+els.locate.addEventListener("click", locateMe);
+
+// "Sky from": look up at the sky as it appears from a place on Earth.
+CITIES.forEach(([name], i) => {
+  const o = document.createElement("option");
+  o.value = String(i);
+  o.textContent = name;
+  els.skyFrom.appendChild(o);
+});
+els.skyFrom.addEventListener("change", async () => {
+  if (!globe) return;
+  const v = els.skyFrom.value;
+  if (v === "space") return globe.setFocus(null);
+  if (v === "me") {
+    const pos = await locateMe();
+    if (!pos) {
+      els.skyFrom.value = "space";
+      return globe.setFocus(null);
+    }
+    return globe.setFocus({ name: "you", lon: pos.lon, lat: pos.lat, tz: userTz });
+  }
+  const [name, lon, lat, tz] = CITIES[Number(v)];
+  globe.setFocus({ name, lon, lat, tz });
 });
 
 // ---------- Main loop ----------

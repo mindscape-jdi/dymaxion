@@ -193,8 +193,44 @@ export function createSky({ scene, sunDir, labelLayer, pixelRatio }) {
   const moonDir = new THREE.Vector3();
   let earthSolid = 0;
 
-  function update(date, camera, sunAzimuth, globeAmount) {
-    earthSolid = globeAmount;
+  // Ground: hides everything below the observer's horizon in "sky from here" mode.
+  const ground = new THREE.Mesh(
+    new THREE.SphereGeometry(R * 0.97, 64, 32),
+    new THREE.ShaderMaterial({
+      uniforms: { uZenith: { value: new THREE.Vector3(0, 1, 0) }, uOpacity: { value: 0 } },
+      vertexShader: /* glsl */ `
+        varying vec3 vDir;
+        void main() {
+          vDir = normalize(position);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }`,
+      fragmentShader: /* glsl */ `
+        uniform vec3 uZenith;
+        uniform float uOpacity;
+        varying vec3 vDir;
+        void main() {
+          float h = dot(normalize(vDir), uZenith); // sine of altitude
+          if (h > 0.004) discard;
+          float glow = smoothstep(-0.03, 0.004, h);
+          vec3 c = mix(vec3(0.02, 0.035, 0.03), vec3(0.16, 0.22, 0.32), glow);
+          gl_FragColor = vec4(c, uOpacity);
+        }`,
+      side: THREE.BackSide,
+      transparent: true,
+      depthWrite: false,
+    })
+  );
+  ground.renderOrder = 5;
+  ground.frustumCulled = false;
+  sky.add(ground);
+
+  function update(date, camera, sunAzimuth, globeAmount, occludeAmount = globeAmount, groundZenith = null, groundAmount = 0) {
+    earthSolid = occludeAmount;
+    ground.visible = groundAmount > 0.001 && !!groundZenith;
+    if (ground.visible) {
+      ground.material.uniforms.uZenith.value.set(...groundZenith);
+      ground.material.uniforms.uOpacity.value = 0.94 * groundAmount;
+    }
     sky.position.copy(camera.position);
     celestial.matrix.copy(toMatrix4(starsToScene(date, sunAzimuth)));
     celestial.matrixWorldNeedsUpdate = true;
@@ -220,16 +256,19 @@ export function createSky({ scene, sunDir, labelLayer, pixelRatio }) {
     const cam = camera.position;
     const occlude = earthSolid > 0.9;
     const dir = new THREE.Vector3();
+    // In "sky from here" mode, hide labels for things below the horizon.
+    const zen = ground.visible ? ground.material.uniforms.uZenith.value : null;
+    const below = (d) => zen !== null && d.dot(zen) < 0;
     PLANETS.forEach((p, i) => {
-      const hidden = !show.planets || (occlude && hiddenByEarth(cam, planetDirs[i]));
+      const hidden = !show.planets || below(planetDirs[i]) || (occlude && hiddenByEarth(cam, planetDirs[i]));
       place(planetLabels[i], dir.copy(planetDirs[i]).multiplyScalar(R).add(cam), camera, w, h, hidden);
     });
     const toMoon = moon.position.clone().sub(cam);
     const md = toMoon.length();
-    place(moonLabel, moon.position, camera, w, h, !moon.visible || (occlude && hiddenByEarth(cam, toMoon.normalize(), md)));
+    place(moonLabel, moon.position, camera, w, h, !moon.visible || below(moonDir) || (occlude && hiddenByEarth(cam, toMoon.normalize(), md)));
     conLabels.forEach(({ el, dir: d }) => {
       dir.copy(d).applyMatrix4(celestial.matrix);
-      const hidden = !show.constellations || (occlude && hiddenByEarth(cam, dir));
+      const hidden = !show.constellations || below(dir) || (occlude && hiddenByEarth(cam, dir));
       place(el, dir.clone().multiplyScalar(R).add(cam), camera, w, h, hidden);
     });
   }

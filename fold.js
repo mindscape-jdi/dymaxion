@@ -1,4 +1,4 @@
-// Geometry for folding Fuller's Dymaxion net into an icosahedron and then a
+// Geometry for folding Fuller's projection net into an icosahedron and then a
 // sphere. Pure maths: no DOM or WebGL, so it can be tested in Node.
 //
 // d3-geo-polygon's Airocean projection is built from 24 flat pieces (the 20

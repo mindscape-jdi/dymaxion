@@ -1,5 +1,5 @@
 // Offline cache so the clock keeps working without a network.
-const CACHE = "dymaxion-clock-v3";
+const CACHE = "fuller-projection-clock-v4";
 const FILES = [
   "./", "index.html", "styles.css", "app.js", "sun.js", "fastfaces.js", "fold.js", "globe.js", "sky.js", "skyview.js",
   "icon.svg", "manifest.webmanifest",
