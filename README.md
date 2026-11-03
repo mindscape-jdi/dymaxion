@@ -37,7 +37,7 @@ It also works on any static host.
 
 ### GitHub Pages
 
-Live at https://mindscape-jdi.github.io/dymaxion/. GitHub Pages publishes straight from the root of `main` (**Settings → Pages → Deploy from a branch**), so every merge to `main` goes live. `.github/workflows/test.yml` runs the tests on every push and PR.
+Live at https://mindscape-jdi.github.io/fuller-map-projection/. GitHub Pages publishes straight from the root of `main` (**Settings → Pages → Deploy from a branch**), so every merge to `main` goes live. `.github/workflows/test.yml` runs the tests on every push and PR.
 
 ## Test
 
