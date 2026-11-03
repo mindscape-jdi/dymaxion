@@ -16,6 +16,7 @@ A live world clock drawn on R. Buckminster Fuller's **Dymaxion (Airocean) map**,
   - **Railways** from Natural Earth 1:10m (public domain).
 - **Fold into a globe.** One tap folds the Dymaxion net along its real hinges into an icosahedron, inflates it into a sphere and floats it in space (three.js). The globe is lit by the sun from its true direction, with Earth's 23.44° axial tilt shown relative to the sun, so seasons, polar day/night and the terminator are physically correct. Drag to turn it, pinch or scroll to zoom, and it slowly orbits on its own (toggle "Orbit"). The time controls spin it too.
 - **The sky around the globe.** In globe view, 1,600 real stars (to magnitude 5, coloured by temperature) and 46 major constellations (the best-known figures, all 12 of the zodiac, Crux and Ursa Minor) surround Earth, with Polaris sitting just off the North Pole. The Moon (with its correct phase, enlarged 4×) and the five naked-eye planets (Mercury, Venus, Mars, Jupiter, Saturn) are shown where they really are at the displayed time. Positions match a full ephemeris (Astronomy Engine) to within about 0.2°. Toggle with "Constellations" and "Moon & planets".
+- **Sky from where you are.** In globe view, "Sky from" puts the camera on the far side of Earth looking straight through it along your line of sight, so the stars, constellations, Moon and planets appear exactly as you'd see them looking up from your spot (or any of the 20 cities). The globe turns see-through with your position marked, a horizon hides what's below it, compass points show direction, and the sky turns with real time. Drag to look around; the sky turns blue when the sun is up there.
 - **Solar noon line.** The sun's path for ±12 hours, marked with the UTC hour at which it's noon at each spot.
 - **World clock.** 20 cities with local civil time (correct time zones and DST) and their current day/night state.
 - **Inspect anywhere.** Hover or tap the map for latitude/longitude, local solar time and sun altitude.
@@ -44,7 +45,7 @@ Live at https://mindscape-jdi.github.io/dymaxion/. GitHub Pages publishes straig
 npm test
 ```
 
-Checks the solar maths against almanac values for solstices, equinoxes and the equation of time, the globe's orientation (subsolar point faces the sun, North Pole tilts toward it in June), that the folded net closes exactly into an icosahedron, planet and Moon positions against Astronomy Engine, Moon phases, and that Polaris lands next to the North Pole on the globe.
+Checks the solar maths against almanac values for solstices, equinoxes and the equation of time, the globe's orientation (subsolar point faces the sun, North Pole tilts toward it in June), that the folded net closes exactly into an icosahedron, planet and Moon positions against Astronomy Engine, Moon phases, that Polaris lands next to the North Pole on the globe, and that in the observer view Polaris stands at the observer's latitude and the sun's altitude matches the map.
 
 ## Files
 

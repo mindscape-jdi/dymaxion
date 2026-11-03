@@ -36,3 +36,32 @@ test("Polaris sits just off Earth's north pole in the globe scene", () => {
     assert.ok(sep > 0.5 && sep < 0.9, `${iso}: Polaris ${sep.toFixed(2)}° from the pole`);
   }
 });
+
+import { observerFrame, altitudeOf } from "../sky.js";
+import { subsolarPoint, sunAltitude } from "../sun.js";
+
+test("observer view: Polaris stands at the observer's latitude", () => {
+  for (const [lon, lat] of [[-74, 40.7], [139.7, 35.7], [-21.9, 64.1]]) {
+    for (const iso of ["2026-11-03T02:00:00Z", "2026-11-03T09:00:00Z", "2027-05-01T18:30:00Z"]) {
+      const d = new Date(iso);
+      const f = observerFrame(d, lon, lat, -25, earthToScene);
+      const polaris = applyMat(starsToScene(d, -25), sphereVec(37.95, 89.264));
+      assert.ok(Math.abs(altitudeOf(f, polaris) - lat) < 1, `${lat}° ${iso}: Polaris at ${altitudeOf(f, polaris)}`);
+    }
+  }
+});
+
+test("observer view: sun altitude matches the map's formula", () => {
+  const d = new Date("2026-11-03T15:00:00Z");
+  const f = observerFrame(d, -74, 40.7, -25, earthToScene);
+  const sunDir = [Math.cos(-25 * Math.PI / 180), 0, -Math.sin(-25 * Math.PI / 180)];
+  const want = sunAltitude(subsolarPoint(d), -74, 40.7);
+  assert.ok(Math.abs(altitudeOf(f, sunDir) - want) < 0.01, `${altitudeOf(f, sunDir)} vs ${want}`);
+});
+
+test("observer frame is right-handed: east × north = up", () => {
+  const f = observerFrame(new Date(), 10, 50, -25, earthToScene);
+  const [e, n, z] = [f.east, f.north, f.zenith];
+  const c = [e[1] * n[2] - e[2] * n[1], e[2] * n[0] - e[0] * n[2], e[0] * n[1] - e[1] * n[0]];
+  c.forEach((v, i) => assert.ok(Math.abs(v - z[i]) < 1e-9));
+});

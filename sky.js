@@ -130,3 +130,21 @@ export function sphereVec(lonDeg, latDeg) {
 export function applyMat(m, v) {
   return m.map((r) => r[0] * v[0] + r[1] * v[1] + r[2] * v[2]);
 }
+
+// Local directions for an observer at (lon, lat), in the scene frame: the
+// zenith (straight up), north and east along the horizon.
+export function observerFrame(date, lon, lat, sunAzimuth = 0, earthToSceneFn) {
+  const m = earthToSceneFn(date, sunAzimuth);
+  const l = lon * RAD, p = lat * RAD;
+  return {
+    zenith: applyMat(m, [Math.cos(p) * Math.cos(l), Math.cos(p) * Math.sin(l), Math.sin(p)]),
+    north: applyMat(m, [-Math.sin(p) * Math.cos(l), -Math.sin(p) * Math.sin(l), Math.cos(p)]),
+    east: applyMat(m, [-Math.sin(l), Math.cos(l), 0]),
+  };
+}
+
+// Altitude (degrees above the horizon) of scene direction `dir` for an observer frame.
+export function altitudeOf(frame, dir) {
+  const d = frame.zenith[0] * dir[0] + frame.zenith[1] * dir[1] + frame.zenith[2] * dir[2];
+  return Math.asin(Math.max(-1, Math.min(1, d))) * DEG;
+}

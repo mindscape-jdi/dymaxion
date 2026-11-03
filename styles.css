@@ -140,6 +140,18 @@ main { padding: 0 12px 12px; max-width: 1500px; margin: 0 auto; }
 .sky-label.major { color: rgba(170, 195, 255, 0.8); text-transform: uppercase; font-size: 9.5px; }
 .sky-label.planet { color: #ffe7b0; font-size: 11px; font-weight: 600; margin: -6px 0 0 9px; }
 .sky-label.moon { color: #e8e8e8; }
+.sky-label.compass { color: #ffd27a; font-weight: 700; font-size: 13px; margin: -8px 0 0 -5px; }
+.sky-status {
+  position: absolute; left: 8px; top: 8px; right: 52px;
+  font-size: 0.78rem; line-height: 1.4; color: var(--text);
+  text-shadow: 0 1px 3px #000; pointer-events: none;
+}
+.sky-status b { color: var(--accent); }
+.sky-status span { color: var(--muted); font-size: 0.72rem; }
+.sky-from select {
+  background: var(--panel); color: var(--text); border: 1px solid var(--line);
+  border-radius: 8px; padding: 5px 8px; font: inherit; font-size: 0.85rem; margin-left: 4px;
+}
 .loading { position: absolute; left: 50%; top: 8px; transform: translateX(-50%); font-size: 0.75rem; color: var(--muted); pointer-events: none; }
 .loading:empty { display: none; }
 
