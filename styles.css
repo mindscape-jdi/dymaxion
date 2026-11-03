@@ -234,6 +234,7 @@ main { padding: 0 12px 12px; max-width: 1500px; margin: 0 auto; }
 .sw.con { background: none; border: 0; border-top: 1px solid #7ea6ff; width: 18px; height: 0; }
 .sw.noon { background: none; border: 0; border-top: 2px dotted var(--accent); height: 0; width: 18px; }
 
+.disclaimer { max-width: 720px; margin: 8px auto 0; opacity: 0.8; }
 footer {
   color: var(--muted);
   font-size: 0.75rem;

@@ -1,4 +1,4 @@
-// 3D view: the Dymaxion net folds into an icosahedron, inflates into a globe
+// 3D view: the Fuller projection net folds into an icosahedron, inflates into a globe
 // and floats in space, lit by the sun from its true direction.
 //
 // Lighting is computed per pixel from the sun's direction in Earth-fixed

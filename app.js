@@ -514,7 +514,7 @@ async function toggleGlobe() {
         globe = createGlobe({ canvas: els.globe, d3, getTime: simNow, drawTexture, labelLayer: els.skyLabels });
         globe.setAutoRotate(els.spin.checked);
         applySky();
-        window.dymaxionGlobe = globe; // handy for debugging in the console
+        window.fullerGlobe = globe; // handy for debugging in the console
         getJSON("sky.json").then((sky) => globe.loadSky(sky)).catch((err) => console.error("Could not load sky", err));
       }
       globe.redrawTexture();
